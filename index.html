@@ -67,6 +67,11 @@
             color: white;
         }
 
+        .reset-btn {
+            background: #9b59b6;
+            color: white;
+        }
+
         .parking-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -80,6 +85,9 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: all 0.3s;
             animation: slideIn 0.5s ease-out;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .parking-slot.occupied {
@@ -89,6 +97,26 @@
 
         .parking-slot.available {
             background: #55efc4;
+        }
+
+        .fee-buttons {
+            margin-top: auto;
+            display: flex;
+            gap: 5px;
+        }
+
+        .deducted-btn {
+            background: #2ecc71;
+            color: white;
+            flex: 1;
+            padding: 8px;
+        }
+
+        .not-deducted-btn {
+            background: #e74c3c;
+            color: white;
+            flex: 1;
+            padding: 8px;
         }
 
         .footer {
@@ -133,6 +161,7 @@
             </select>
             <button onclick="assignParking()" class="btn assign-btn">Assign Parking</button>
             <button onclick="removeVehicle()" class="btn remove-btn">Remove Vehicle</button>
+            <button onclick="resetSystem()" class="btn reset-btn">Reset All</button>
         </div>
 
         <div class="earnings">
@@ -163,7 +192,6 @@
             parkingGrid.innerHTML = '';
             
             if(parkingData.length === 0) {
-                // Create initial parking slots
                 for(let i = 1; i <= totalSlots; i++) {
                     parkingData.push({
                         id: i,
@@ -176,20 +204,63 @@
             parkingData.forEach(slot => {
                 const slotElement = document.createElement('div');
                 slotElement.className = `parking-slot ${slot.status}`;
-                slotElement.innerHTML = `
-                    <h3>Slot #${slot.id}</h3>
-                    ${slot.status === 'occupied' ? 
-                        `<p>${slot.details.vehicleNumber}</p>
-                         <p>${slot.details.owner}</p>
-                         <p>${slot.details.type} (PKR ${feeStructure[slot.details.type]})</p>
-                         <p>Fee Collected: ${slot.details.feePaid ? '✅' : '❌'}</p>` : 
-                        '<p>Available</p>'}
-                `;
+                
+                if(slot.status === 'occupied') {
+                    const fee = feeStructure[slot.details.type];
+                    slotElement.innerHTML = `
+                        <h3>Slot #${slot.id}</h3>
+                        <p>${slot.details.vehicleNumber}</p>
+                        <p>${slot.details.owner}</p>
+                        <p>${slot.details.type} (PKR ${fee})</p>
+                        <div class="fee-buttons">
+                            <button class="btn deducted-btn ${slot.details.feePaid ? 'active' : ''}" 
+                                    onclick="updateFeeStatus(${slot.id}, true)">
+                                Deducted
+                            </button>
+                            <button class="btn not-deducted-btn ${!slot.details.feePaid ? 'active' : ''}" 
+                                    onclick="updateFeeStatus(${slot.id}, false)">
+                                Not Deducted
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    slotElement.innerHTML = `
+                        <h3>Slot #${slot.id}</h3>
+                        <p>Available</p>
+                    `;
+                }
+                
                 parkingGrid.appendChild(slotElement);
             });
 
-            // Update total earnings
             document.getElementById('totalEarnings').textContent = totalEarnings;
+        }
+
+        function updateFeeStatus(slotId, isPaid) {
+            const slot = parkingData.find(s => s.id === slotId);
+            if(slot && slot.status === 'occupied') {
+                const fee = feeStructure[slot.details.type];
+                
+                if(isPaid && !slot.details.feePaid) {
+                    totalEarnings += fee;
+                } else if(!isPaid && slot.details.feePaid) {
+                    totalEarnings -= fee;
+                }
+                
+                slot.details.feePaid = isPaid;
+                localStorage.setItem('parkingData', JSON.stringify(parkingData));
+                localStorage.setItem('totalEarnings', totalEarnings);
+                initializeParking();
+            }
+        }
+
+        function resetSystem() {
+            if(confirm("Are you sure you want to reset all data?")) {
+                parkingData = [];
+                totalEarnings = 0;
+                localStorage.clear();
+                initializeParking();
+            }
         }
 
         function assignParking() {
@@ -233,13 +304,10 @@
             );
 
             if(occupiedSlot) {
-                const fee = feeStructure[occupiedSlot.details.type];
                 if(!occupiedSlot.details.feePaid) {
-                    const confirmPayment = confirm(`Fee of PKR ${fee} collected?`);
-                    if(confirmPayment) {
-                        totalEarnings += fee;
-                        localStorage.setItem('totalEarnings', totalEarnings);
-                    }
+                    const fee = feeStructure[occupiedSlot.details.type];
+                    const confirmPayment = confirm(`Fee of PKR ${fee} not collected. Remove anyway?`);
+                    if(!confirmPayment) return;
                 }
 
                 occupiedSlot.status = 'available';
