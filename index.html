@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Management System</title>
+    <style>
+        /* CSS Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .title {
+            text-align: center;
+            color: #2c3e50;
+            animation: fadeIn 1.5s;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .input-field {
+            padding: 10px;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .assign-btn {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .remove-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .parking-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .parking-slot {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .parking-slot.occupied {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .parking-slot.available {
+            background: #55efc4;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            color: #666;
+            animation: fadeIn 2s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">🚗 Parking Management System 🌟</h1>
+        
+        <div class="controls">
+            <input type="text" id="license" placeholder="License Number" class="input-field">
+            <input type="text" id="owner" placeholder="Owner Name" class="input-field">
+            <select id="vehicleType" class="input-field">
+                <option value="car">Car</option>
+                <option value="bike">Bike</option>
+                <option value="truck">Truck</option>
+            </select>
+            <button onclick="assignParking()" class="btn assign-btn">Assign Parking</button>
+            <button onclick="removeVehicle()" class="btn remove-btn">Remove Vehicle</button>
+        </div>
+
+        <div class="parking-grid" id="parkingGrid"></div>
+        
+        <div class="footer">
+            Made with ❤️ by Sohaib
+        </div>
+    </div>
+
+    <script>
+        // JavaScript Code
+        let parkingData = JSON.parse(localStorage.getItem('parkingData')) || [];
+        const totalSlots = 12;
+
+        function initializeParking() {
+            const parkingGrid = document.getElementById('parkingGrid');
+            parkingGrid.innerHTML = '';
+            
+            if(parkingData.length === 0) {
+                // Create initial parking slots
+                for(let i = 1; i <= totalSlots; i++) {
+                    parkingData.push({
+                        id: i,
+                        status: 'available',
+                        details: null
+                    });
+                }
+            }
+
+            parkingData.forEach(slot => {
+                const slotElement = document.createElement('div');
+                slotElement.className = `parking-slot ${slot.status}`;
+                slotElement.innerHTML = `
+                    <h3>Slot #${slot.id}</h3>
+                    ${slot.status === 'occupied' ? 
+                        `<p>${slot.details.license}</p>
+                         <p>${slot.details.owner}</p>
+                         <p>${slot.details.type}</p>` : 
+                        '<p>Available</p>'}
+                `;
+                parkingGrid.appendChild(slotElement);
+            });
+        }
+
+        function assignParking() {
+            const license = document.getElementById('license').value;
+            const owner = document.getElementById('owner').value;
+            const vehicleType = document.getElementById('vehicleType').value;
+
+            if(!license || !owner) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            const availableSlot = parkingData.find(slot => slot.status === 'available');
+            
+            if(availableSlot) {
+                availableSlot.status = 'occupied';
+                availableSlot.details = {
+                    license,
+                    owner,
+                    type: vehicleType
+                };
+                
+                localStorage.setItem('parkingData', JSON.stringify(parkingData));
+                initializeParking();
+                clearFields();
+            } else {
+                alert('No available parking slots!');
+            }
+        }
+
+        function removeVehicle() {
+            const license = document.getElementById('license').value;
+            if(!license) {
+                alert('Please enter license number');
+                return;
+            }
+
+            const occupiedSlot = parkingData.find(slot => 
+                slot.status === 'occupied' && slot.details.license === license
+            );
+
+            if(occupiedSlot) {
+                occupiedSlot.status = 'available';
+                occupiedSlot.details = null;
+                localStorage.setItem('parkingData', JSON.stringify(parkingData));
+                initializeParking();
+                clearFields();
+            } else {
+                alert('Vehicle not found!');
+            }
+        }
+
+        function clearFields() {
+            document.getElementById('license').value = '';
+            document.getElementById('owner').value = '';
+        }
+
+        // Initialize on page load
+        window.onload = initializeParking;
+    </script>
+</body>
+</html>
