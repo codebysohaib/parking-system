@@ -99,6 +99,15 @@
             animation: fadeIn 2s;
         }
 
+        .earnings {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+            text-align: center;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -115,15 +124,19 @@
         <h1 class="title">🚗 Parking Management System 🌟</h1>
         
         <div class="controls">
-            <input type="text" id="license" placeholder="License Number" class="input-field">
+            <input type="text" id="vehicleNumber" placeholder="Vehicle Number" class="input-field">
             <input type="text" id="owner" placeholder="Owner Name" class="input-field">
             <select id="vehicleType" class="input-field">
-                <option value="car">Car</option>
-                <option value="bike">Bike</option>
-                <option value="truck">Truck</option>
+                <option value="bike">Bike (PKR 20)</option>
+                <option value="car">Car (PKR 50)</option>
+                <option value="truck">Truck (PKR 100)</option>
             </select>
             <button onclick="assignParking()" class="btn assign-btn">Assign Parking</button>
             <button onclick="removeVehicle()" class="btn remove-btn">Remove Vehicle</button>
+        </div>
+
+        <div class="earnings">
+            <h3>Total Earnings Today: PKR <span id="totalEarnings">0</span></h3>
         </div>
 
         <div class="parking-grid" id="parkingGrid"></div>
@@ -136,7 +149,14 @@
     <script>
         // JavaScript Code
         let parkingData = JSON.parse(localStorage.getItem('parkingData')) || [];
+        let totalEarnings = JSON.parse(localStorage.getItem('totalEarnings')) || 0;
         const totalSlots = 12;
+
+        const feeStructure = {
+            bike: 20,
+            car: 50,
+            truck: 100
+        };
 
         function initializeParking() {
             const parkingGrid = document.getElementById('parkingGrid');
@@ -159,21 +179,25 @@
                 slotElement.innerHTML = `
                     <h3>Slot #${slot.id}</h3>
                     ${slot.status === 'occupied' ? 
-                        `<p>${slot.details.license}</p>
+                        `<p>${slot.details.vehicleNumber}</p>
                          <p>${slot.details.owner}</p>
-                         <p>${slot.details.type}</p>` : 
+                         <p>${slot.details.type} (PKR ${feeStructure[slot.details.type]})</p>
+                         <p>Fee Collected: ${slot.details.feePaid ? '✅' : '❌'}</p>` : 
                         '<p>Available</p>'}
                 `;
                 parkingGrid.appendChild(slotElement);
             });
+
+            // Update total earnings
+            document.getElementById('totalEarnings').textContent = totalEarnings;
         }
 
         function assignParking() {
-            const license = document.getElementById('license').value;
+            const vehicleNumber = document.getElementById('vehicleNumber').value;
             const owner = document.getElementById('owner').value;
             const vehicleType = document.getElementById('vehicleType').value;
 
-            if(!license || !owner) {
+            if(!vehicleNumber || !owner) {
                 alert('Please fill all fields');
                 return;
             }
@@ -183,9 +207,10 @@
             if(availableSlot) {
                 availableSlot.status = 'occupied';
                 availableSlot.details = {
-                    license,
+                    vehicleNumber,
                     owner,
-                    type: vehicleType
+                    type: vehicleType,
+                    feePaid: false
                 };
                 
                 localStorage.setItem('parkingData', JSON.stringify(parkingData));
@@ -197,17 +222,26 @@
         }
 
         function removeVehicle() {
-            const license = document.getElementById('license').value;
-            if(!license) {
-                alert('Please enter license number');
+            const vehicleNumber = document.getElementById('vehicleNumber').value;
+            if(!vehicleNumber) {
+                alert('Please enter vehicle number');
                 return;
             }
 
             const occupiedSlot = parkingData.find(slot => 
-                slot.status === 'occupied' && slot.details.license === license
+                slot.status === 'occupied' && slot.details.vehicleNumber === vehicleNumber
             );
 
             if(occupiedSlot) {
+                const fee = feeStructure[occupiedSlot.details.type];
+                if(!occupiedSlot.details.feePaid) {
+                    const confirmPayment = confirm(`Fee of PKR ${fee} collected?`);
+                    if(confirmPayment) {
+                        totalEarnings += fee;
+                        localStorage.setItem('totalEarnings', totalEarnings);
+                    }
+                }
+
                 occupiedSlot.status = 'available';
                 occupiedSlot.details = null;
                 localStorage.setItem('parkingData', JSON.stringify(parkingData));
@@ -219,7 +253,7 @@
         }
 
         function clearFields() {
-            document.getElementById('license').value = '';
+            document.getElementById('vehicleNumber').value = '';
             document.getElementById('owner').value = '';
         }
 
