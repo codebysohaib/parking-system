@@ -2,304 +2,187 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Smart Parking System</title>
     <style>
+        /* Mobile-First Styles */
+        * {
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 10px;
+            background: #f0f2f5;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
         /* Header Styles */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 30px;
+            padding: 12px;
             background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
             color: white;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
         }
 
         .header-title {
             margin: 0;
-            font-size: 1.8em;
+            font-size: 1.4rem;
+            white-space: nowrap;
         }
 
         .auth-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .auth-btn {
-            padding: 8px 20px;
+            padding: 6px 12px;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
+            font-size: 0.9rem;
             cursor: pointer;
-            transition: all 0.3s;
         }
 
-        .auth-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .signin-btn {
-            background: #27ae60;
-            color: white;
-        }
-
-        .history-btn {
-            background: #f1c40f;
-            color: black;
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-        .history-btn.active {
-            cursor: pointer;
-            opacity: 1;
-        }
-
-        /* Main Content Styles */
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .title {
-            text-align: center;
-            color: #2c3e50;
-            animation: fadeIn 1.5s;
-        }
-
+        /* Controls Section */
         .controls {
             background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin: 20px 0;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 15px 0;
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 10px;
         }
 
         .input-field {
-            padding: 10px;
-            border: 2px solid #3498db;
-            border-radius: 5px;
-            flex: 1;
-            min-width: 200px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 1rem;
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 12px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            font-size: 1rem;
             cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: opacity 0.2s;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        .btn:active {
+            opacity: 0.8;
         }
 
-        .assign-btn {
-            background: #2ecc71;
-            color: white;
-        }
-
-        .remove-btn {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .reset-btn {
-            background: #9b59b6;
-            color: white;
-        }
-
+        /* Parking Grid */
         .parking-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
         }
 
         .parking-slot {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s;
-            animation: slideIn 0.5s ease-out;
+            padding: 12px;
+            border-radius: 8px;
+            min-height: 120px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            justify-content: space-between;
         }
 
-        .parking-slot.occupied {
-            background: #ff6b6b;
-            color: white;
+        .parking-slot h3 {
+            margin: 0 0 8px 0;
+            font-size: 1.1rem;
         }
 
-        .parking-slot.available {
-            background: #55efc4;
-        }
-
-        .fee-buttons {
-            margin-top: auto;
-            display: flex;
-            gap: 5px;
-        }
-
-        .deducted-btn {
-            background: #2ecc71;
-            color: white;
-            flex: 1;
-            padding: 8px;
-        }
-
-        .not-deducted-btn {
-            background: #e74c3c;
-            color: white;
-            flex: 1;
-            padding: 8px;
-        }
-
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding: 15px;
-            color: #666;
-            animation: fadeIn 2s;
-        }
-
-        .earnings {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            margin: 20px 0;
-            text-align: center;
+        .parking-slot p {
+            margin: 4px 0;
+            font-size: 0.9rem;
         }
 
         /* Modal Styles */
         .modal {
-            display: none;
             position: fixed;
-            z-index: 1000;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
         }
 
         .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 25px;
-            border-radius: 10px;
-            width: 90%;
+            background: white;
+            width: 100%;
             max-width: 400px;
+            padding: 20px;
+            border-radius: 12px;
             position: relative;
         }
 
-        .close {
-            color: #aaa;
-            position: absolute;
-            right: 20px;
-            top: 10px;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .auth-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .auth-form input {
-            padding: 12px;
-            border: 2px solid #3498db;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        .auth-form button {
-            background: #3498db;
-            color: white;
-            padding: 12px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .auth-form button:hover {
-            background: #2980b9;
-        }
-
-        .form-switch {
+        /* Footer and Earnings */
+        .earnings {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
             text-align: center;
-            margin-top: 10px;
         }
 
-        .form-switch a {
-            color: #3498db;
-            text-decoration: none;
-            cursor: pointer;
+        .footer {
+            text-align: center;
+            padding: 15px;
+            color: #666;
+            font-size: 0.9rem;
         }
 
-        .form-switch a:hover {
-            text-decoration: underline;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideIn {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        /* Color Classes */
+        .occupied { background: #ff4757; color: white; }
+        .available { background: #2ed573; color: white; }
+        .signin-btn { background: #2ecc71; }
+        .history-btn { background: #f1c40f; }
+        .assign-btn { background: #3498db; }
+        .remove-btn { background: #e74c3c; }
+        .reset-btn { background: #9b59b6; }
     </style>
 </head>
 <body>
     <!-- Auth Modal -->
     <div id="authModal" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
             <div id="loginForm" class="auth-form">
-                <h2>Login</h2>
-                <input type="text" id="loginUsername" placeholder="Username" required>
-                <input type="password" id="loginPassword" placeholder="Password" required>
-                <button onclick="login()">Login</button>
+                <h2 style="margin: 0 0 15px 0;">Login</h2>
+                <input type="text" id="loginUsername" placeholder="Username" class="input-field">
+                <input type="password" id="loginPassword" placeholder="Password" class="input-field">
+                <button class="btn signin-btn" onclick="login()" style="margin-top: 10px;">Login</button>
                 <div class="form-switch">
-                    Don't have an account? <a onclick="showRegisterForm()">Register here</a>
+                    <p style="margin: 15px 0 0 0;">New user? <a onclick="showRegisterForm()" style="color: #3498db; cursor: pointer;">Register here</a></p>
                 </div>
             </div>
-            <div id="registerForm" class="auth-form" style="display: none;">
-                <h2>Register</h2>
-                <input type="text" id="registerUsername" placeholder="Username" required>
-                <input type="password" id="registerPassword" placeholder="Password" required>
-                <button onclick="register()">Create Account</button>
+            <div id="registerForm" style="display: none;">
+                <h2 style="margin: 0 0 15px 0;">Register</h2>
+                <input type="text" id="registerUsername" placeholder="Username" class="input-field">
+                <input type="password" id="registerPassword" placeholder="Password" class="input-field">
+                <button class="btn signin-btn" onclick="register()" style="margin-top: 10px;">Register</button>
                 <div class="form-switch">
-                    Already have an account? <a onclick="showLoginForm()">Login here</a>
+                    <p style="margin: 15px 0 0 0;">Have an account? <a onclick="showLoginForm()" style="color: #3498db; cursor: pointer;">Login here</a></p>
                 </div>
             </div>
         </div>
@@ -307,15 +190,13 @@
 
     <div class="container">
         <header class="header">
-            <h1 class="header-title">🚗 Smart Parking System</h1>
+            <h1 class="header-title">🚗 Smart Parking</h1>
             <div class="auth-buttons">
                 <button id="historyBtn" class="auth-btn history-btn" onclick="showHistory()">History</button>
                 <button id="authBtn" class="auth-btn signin-btn" onclick="handleAuth()">Sign In</button>
             </div>
         </header>
 
-        <h1 class="title">🚗 Parking Management System 🌟</h1>
-        
         <div class="controls">
             <input type="text" id="vehicleNumber" placeholder="Vehicle Number" class="input-field">
             <input type="text" id="owner" placeholder="Owner Name" class="input-field">
@@ -324,13 +205,13 @@
                 <option value="car">Car (PKR 50)</option>
                 <option value="truck">Truck (PKR 100)</option>
             </select>
-            <button onclick="assignParking()" class="btn assign-btn">Assign Parking</button>
-            <button onclick="removeVehicle()" class="btn remove-btn">Remove Vehicle</button>
-            <button onclick="resetSystem()" class="btn reset-btn">Reset All</button>
+            <button class="btn assign-btn" onclick="assignParking()">Assign Parking</button>
+            <button class="btn remove-btn" onclick="removeVehicle()">Remove Vehicle</button>
+            <button class="btn reset-btn" onclick="resetSystem()">Reset All</button>
         </div>
 
         <div class="earnings">
-            <h3>Total Earnings Today: PKR <span id="totalEarnings">0</span></h3>
+            <h3 style="margin: 0;">Total Earnings: PKR <span id="totalEarnings">0</span></h3>
         </div>
 
         <div class="parking-grid" id="parkingGrid"></div>
@@ -352,7 +233,7 @@
         let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
         let transactionHistory = JSON.parse(localStorage.getItem('transactionHistory')) || [];
 
-        // Initialize Parking System
+        // Initialize Parking
         function initializeParking() {
             const parkingGrid = document.getElementById('parkingGrid');
             parkingGrid.innerHTML = '';
@@ -370,44 +251,35 @@
             parkingData.forEach(slot => {
                 const slotElement = document.createElement('div');
                 slotElement.className = `parking-slot ${slot.status}`;
-                
-                if(slot.status === 'occupied') {
-                    const fee = feeStructure[slot.details.type];
-                    slotElement.innerHTML = `
-                        <h3>Slot #${slot.id}</h3>
-                        <p>${slot.details.vehicleNumber}</p>
-                        <p>${slot.details.owner}</p>
-                        <p>${slot.details.type} (PKR ${fee})</p>
-                        <div class="fee-buttons">
-                            <button class="btn deducted-btn ${slot.details.feePaid ? 'active' : ''}" 
-                                    onclick="updateFeeStatus(${slot.id}, true)">
-                                Deducted
-                            </button>
-                            <button class="btn not-deducted-btn ${!slot.details.feePaid ? 'active' : ''}" 
-                                    onclick="updateFeeStatus(${slot.id}, false)">
-                                Not Deducted
-                            </button>
-                        </div>
-                    `;
-                } else {
-                    slotElement.innerHTML = `
-                        <h3>Slot #${slot.id}</h3>
-                        <p>Available</p>
-                    `;
-                }
-                
+                slotElement.innerHTML = slot.status === 'occupied' ? `
+                    <h3>Slot ${slot.id}</h3>
+                    <p>${slot.details.vehicleNumber}</p>
+                    <p>${slot.details.owner}</p>
+                    <div style="margin-top: 10px;">
+                        <button class="btn" onclick="updateFeeStatus(${slot.id}, true)" 
+                            style="background: ${slot.details.feePaid ? '#2ecc71' : '#95a5a6'}; margin: 2px; width: calc(50% - 4px);">
+                            Paid
+                        </button>
+                        <button class="btn" onclick="updateFeeStatus(${slot.id}, false)" 
+                            style="background: ${!slot.details.feePaid ? '#e74c3c' : '#95a5a6'}; margin: 2px; width: calc(50% - 4px);">
+                            Unpaid
+                        </button>
+                    </div>
+                ` : `
+                    <h3>Slot ${slot.id}</h3>
+                    <p>Available</p>
+                `;
                 parkingGrid.appendChild(slotElement);
             });
 
             document.getElementById('totalEarnings').textContent = totalEarnings;
         }
 
-        // Parking System Functions
+        // Parking Functions
         function updateFeeStatus(slotId, isPaid) {
             const slot = parkingData.find(s => s.id === slotId);
             if(slot && slot.status === 'occupied') {
                 const fee = feeStructure[slot.details.type];
-                
                 if(isPaid && !slot.details.feePaid) {
                     totalEarnings += fee;
                     addTransaction('fee_paid', fee, slot.details);
@@ -415,7 +287,6 @@
                     totalEarnings -= fee;
                     addTransaction('fee_reversed', -fee, slot.details);
                 }
-                
                 slot.details.feePaid = isPaid;
                 saveData();
                 initializeParking();
@@ -427,63 +298,149 @@
             const owner = document.getElementById('owner').value;
             const vehicleType = document.getElementById('vehicleType').value;
 
-            if(!vehicleNumber || !owner) {
-                alert('Please fill all fields');
-                return;
-            }
+            if(!vehicleNumber || !owner) return alert('Please fill all fields');
 
             const availableSlot = parkingData.find(slot => slot.status === 'available');
-            
             if(availableSlot) {
                 availableSlot.status = 'occupied';
-                availableSlot.details = {
-                    vehicleNumber,
-                    owner,
-                    type: vehicleType,
-                    feePaid: false
-                };
-                
+                availableSlot.details = { vehicleNumber, owner, type: vehicleType, feePaid: false };
                 addTransaction('vehicle_in', 0, availableSlot.details);
                 saveData();
                 initializeParking();
                 clearFields();
             } else {
-                alert('No available parking slots!');
+                alert('Parking Full!');
             }
         }
 
         function removeVehicle() {
             const vehicleNumber = document.getElementById('vehicleNumber').value;
-            if(!vehicleNumber) {
-                alert('Please enter vehicle number');
-                return;
-            }
-
-            const occupiedSlot = parkingData.find(slot => 
-                slot.status === 'occupied' && slot.details.vehicleNumber === vehicleNumber
-            );
-
-            if(occupiedSlot) {
-                const fee = feeStructure[occupiedSlot.details.type];
-                
-                if(!occupiedSlot.details.feePaid) {
-                    const confirmPayment = confirm(`Fee of PKR ${fee} not collected. Remove anyway?`);
-                    if(!confirmPayment) return;
-                }
-
-                addTransaction('vehicle_out', fee, occupiedSlot.details);
-                occupiedSlot.status = 'available';
-                occupiedSlot.details = null;
+            if(!vehicleNumber) return alert('Enter vehicle number');
+            
+            const slot = parkingData.find(s => s.status === 'occupied' && s.details.vehicleNumber === vehicleNumber);
+            if(slot) {
+                if(!slot.details.feePaid && !confirm('Fee not collected! Remove anyway?')) return;
+                addTransaction('vehicle_out', feeStructure[slot.details.type], slot.details);
+                slot.status = 'available';
+                slot.details = null;
                 saveData();
                 initializeParking();
                 clearFields();
             } else {
-                alert('Vehicle not found!');
+                alert('Vehicle not found');
             }
         }
 
+        // Authentication Functions
+        function showLoginForm() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+        }
+
+        function showRegisterForm() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        }
+
+        function register() {
+            const username = document.getElementById('registerUsername').value.trim();
+            const password = document.getElementById('registerPassword').value.trim();
+            if(!username || !password) return alert('Please fill all fields');
+            if(users.some(u => u.username === username)) return alert('Username taken');
+            users.push({ username, password });
+            localStorage.setItem('users', JSON.stringify(users));
+            alert('Registration successful!');
+            showLoginForm();
+        }
+
+        function login() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const user = users.find(u => u.username === username && u.password === password);
+            if(user) {
+                currentUser = { username };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                document.getElementById('authModal').style.display = 'none';
+                updateAuthUI();
+            } else {
+                alert('Invalid credentials');
+            }
+        }
+
+        function handleAuth() {
+            if(currentUser) {
+                if(confirm(`Logout ${currentUser.username}?`)) {
+                    currentUser = null;
+                    localStorage.removeItem('currentUser');
+                    updateAuthUI();
+                }
+            } else {
+                document.getElementById('authModal').style.display = 'flex';
+                showLoginForm();
+            }
+        }
+
+        // Utility Functions
+        function updateAuthUI() {
+            const authBtn = document.getElementById('authBtn');
+            const historyBtn = document.getElementById('historyBtn');
+            if(currentUser) {
+                authBtn.textContent = `Logout (${currentUser.username})`;
+                authBtn.style.backgroundColor = '#e74c3c';
+                historyBtn.disabled = false;
+            } else {
+                authBtn.textContent = 'Sign In';
+                authBtn.style.backgroundColor = '#2ecc71';
+                historyBtn.disabled = true;
+            }
+        }
+
+        function addTransaction(type, amount, details) {
+            transactionHistory.push({
+                timestamp: new Date().toISOString(),
+                type,
+                amount,
+                details,
+                user: currentUser?.username || 'Guest'
+            });
+            localStorage.setItem('transactionHistory', JSON.stringify(transactionHistory));
+        }
+
+        function showHistory() {
+            if(!currentUser) return alert('Please login first');
+            const history = transactionHistory.reverse().map(t => `
+                <tr>
+                    <td>${new Date(t.timestamp).toLocaleString()}</td>
+                    <td>${t.type.replace('_', ' ').toUpperCase()}</td>
+                    <td>PKR ${t.amount}</td>
+                    <td>${t.details.vehicleNumber}</td>
+                    <td>${t.user}</td>
+                </tr>
+            `).join('');
+            
+            const win = window.open('', 'History', 'width=600,height=400');
+            win.document.write(`
+                <html>
+                <head><title>Transaction History</title>
+                <style>
+                    body { font-family: Arial; padding: 15px; }
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { padding: 8px; border-bottom: 1px solid #ddd; font-size: 14px; }
+                </style>
+                </head>
+                <body>
+                    <h2>Transaction History</h2>
+                    <table>
+                        <tr><th>Time</th><th>Type</th><th>Amount</th><th>Vehicle</th><th>User</th></tr>
+                        ${history}
+                    </table>
+                </body>
+                </html>
+            `);
+        }
+
         function resetSystem() {
-            if(confirm("Are you sure you want to reset all data?")) {
+            if(confirm("Reset all data?")) {
                 parkingData = [];
                 totalEarnings = 0;
                 transactionHistory = [];
@@ -497,153 +454,19 @@
             document.getElementById('owner').value = '';
         }
 
-        // Authentication Functions
-        function showLoginForm() {
-            document.getElementById('loginForm').style.display = 'flex';
-            document.getElementById('registerForm').style.display = 'none';
-        }
-
-        function showRegisterForm() {
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('registerForm').style.display = 'flex';
-        }
-
-        function register() {
-            const username = document.getElementById('registerUsername').value.trim();
-            const password = document.getElementById('registerPassword').value.trim();
-
-            if (!username || !password) {
-                alert('Please fill in all fields');
-                return;
-            }
-
-            if (users.some(user => user.username === username)) {
-                alert('Username already exists');
-                return;
-            }
-
-            users.push({ username, password });
-            localStorage.setItem('users', JSON.stringify(users));
-            alert('Registration successful! Please login.');
-            showLoginForm();
-        }
-
-        function login() {
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
-
-            const user = users.find(u => u.username === username && u.password === password);
-            if (user) {
-                currentUser = { username };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                document.getElementById('authModal').style.display = 'none';
-                updateAuthUI();
-            } else {
-                alert('Invalid username or password');
-            }
-        }
-
-        function updateAuthUI() {
-            const authBtn = document.getElementById('authBtn');
-            const historyBtn = document.getElementById('historyBtn');
-            
-            if (currentUser) {
-                authBtn.textContent = `Logout (${currentUser.username})`;
-                authBtn.style.backgroundColor = '#e74c3c';
-                historyBtn.classList.add('active');
-            } else {
-                authBtn.textContent = 'Sign In';
-                authBtn.style.backgroundColor = '#27ae60';
-                historyBtn.classList.remove('active');
-            }
-        }
-
-        function handleAuth() {
-            if (currentUser) {
-                if (confirm(`Are you sure you want to logout, ${currentUser.username}?`)) {
-                    currentUser = null;
-                    localStorage.removeItem('currentUser');
-                    updateAuthUI();
-                }
-            } else {
-                document.getElementById('authModal').style.display = 'block';
-                showLoginForm();
-            }
-        }
-
-        // Transaction History
-        function addTransaction(type, amount, details) {
-            transactionHistory.push({
-                timestamp: new Date().toISOString(),
-                type,
-                amount,
-                details,
-                user: currentUser ? currentUser.username : 'Anonymous'
-            });
-            localStorage.setItem('transactionHistory', JSON.stringify(transactionHistory));
-        }
-
-        function showHistory() {
-            if(!currentUser) {
-                alert('Please sign in to view history!');
-                return;
-            }
-            
-            const historyWindow = window.open('', 'History', 'width=600,height=400');
-            historyWindow.document.write(`
-                <html>
-                <head><title>Transaction History</title>
-                <style>
-                    body { font-family: Arial; padding: 20px; }
-                    table { width: 100%; border-collapse: collapse; }
-                    th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
-                    th { background-color: #f2f2f2; }
-                </style>
-                </head>
-                <body>
-                    <h2>Transaction History</h2>
-                    <table>
-                        <tr>
-                            <th>Time</th>
-                            <th>Type</th>
-                            <th>Amount</th>
-                            <th>Vehicle</th>
-                            <th>User</th>
-                        </tr>
-                        ${transactionHistory.reverse().map(transaction => `
-                            <tr>
-                                <td>${new Date(transaction.timestamp).toLocaleString()}</td>
-                                <td>${transaction.type.replace('_', ' ').toUpperCase()}</td>
-                                <td>${transaction.amount > 0 ? 'PKR ' + transaction.amount : '-'}</td>
-                                <td>${transaction.details.vehicleNumber}</td>
-                                <td>${transaction.user}</td>
-                            </tr>
-                        `).join('')}
-                    </table>
-                </body>
-                </html>
-            `);
-        }
-
-        // Save Data
         function saveData() {
             localStorage.setItem('parkingData', JSON.stringify(parkingData));
             localStorage.setItem('totalEarnings', totalEarnings);
         }
 
         // Event Listeners
-        document.querySelector('.close').onclick = function() {
-            document.getElementById('authModal').style.display = 'none';
-        };
-
-        window.onclick = function(event) {
-            const modal = document.getElementById('authModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
+        document.querySelector('.modal').addEventListener('click', (e) => {
+            if(e.target.classList.contains('modal')) {
+                document.getElementById('authModal').style.display = 'none';
             }
-        };
+        });
 
-        // Initialize on load
+        // Initialization
         window.onload = () => {
             initializeParking();
             updateAuthUI();
