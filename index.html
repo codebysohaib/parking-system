@@ -2,26 +2,37 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Parking System</title>
     <style>
-        /* Mobile-First Styles */
+        :root {
+            --primary: #2563eb;
+            --secondary: #3b82f6;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --background: #f8fafc;
+            --text: #1e293b;
+            --card-bg: #ffffff;
+        }
+
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
-            touch-action: manipulation;
+            font-family: 'Inter', sans-serif;
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 10px;
-            background: #f0f2f5;
-            -webkit-tap-highlight-color: transparent;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.5;
         }
 
         .container {
-            max-width: 100%;
+            max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
         }
 
         /* Header Styles */
@@ -29,90 +40,180 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px;
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .header-title {
-            margin: 0;
-            font-size: 1.4rem;
-            white-space: nowrap;
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .auth-buttons {
             display: flex;
-            gap: 8px;
+            gap: 1rem;
         }
 
         .auth-btn {
-            padding: 6px 12px;
+            padding: 0.5rem 1rem;
             border: none;
-            border-radius: 4px;
-            font-size: 0.9rem;
+            border-radius: 8px;
+            font-weight: 500;
             cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .auth-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         /* Controls Section */
         .controls {
-            background: white;
-            padding: 15px;
+            background: var(--card-bg);
+            padding: 1.5rem;
             border-radius: 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin: 15px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
         }
 
         .input-field {
-            padding: 12px;
-            border: 1px solid #ddd;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
             border-radius: 8px;
             width: 100%;
             font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn-group {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         }
 
         .btn {
-            padding: 12px;
+            padding: 0.75rem 1rem;
             border: none;
             border-radius: 8px;
-            font-size: 1rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: opacity 0.2s;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
-        .btn:active {
-            opacity: 0.8;
+        .btn:hover {
+            transform: translateY(-1px);
         }
+
+        .assign-btn { background: var(--accent); color: white; }
+        .remove-btn { background: var(--danger); color: white; }
+        .reset-btn { background: var(--primary); color: white; }
 
         /* Parking Grid */
         .parking-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .parking-slot {
-            padding: 12px;
-            border-radius: 8px;
-            min-height: 120px;
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .parking-slot:hover {
+            transform: translateY(-2px);
+        }
+
+        .parking-slot::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--accent);
+        }
+
+        .parking-slot.occupied::before { background: var(--danger); }
+        .parking-slot.available::before { background: var(--accent); }
+
+        .slot-header {
             display: flex;
-            flex-direction: column;
             justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
         }
 
-        .parking-slot h3 {
-            margin: 0 0 8px 0;
-            font-size: 1.1rem;
+        .slot-id {
+            font-weight: 600;
+            color: var(--primary);
         }
 
-        .parking-slot p {
-            margin: 4px 0;
-            font-size: 0.9rem;
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent);
         }
+
+        .status-badge.occupied { 
+            background: rgba(239, 68, 68, 0.1); 
+            color: var(--danger); 
+        }
+
+        .slot-details p {
+            margin: 0.5rem 0;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .fee-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .fee-btn {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .paid-btn { background: var(--accent); color: white; }
+        .unpaid-btn { background: var(--danger); color: white; }
 
         /* Modal Styles */
         .modal {
@@ -121,46 +222,70 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             display: none;
             align-items: center;
             justify-content: center;
-            padding: 15px;
+            padding: 1rem;
+            z-index: 1000;
         }
 
         .modal-content {
-            background: white;
+            background: var(--card-bg);
             width: 100%;
             max-width: 400px;
-            padding: 20px;
+            padding: 2rem;
             border-radius: 12px;
             position: relative;
+            animation: modalSlide 0.3s ease-out;
         }
 
-        /* Footer and Earnings */
+        @keyframes modalSlide {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Earnings */
         .earnings {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
             text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
+        .earnings h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Footer */
         .footer {
             text-align: center;
-            padding: 15px;
-            color: #666;
-            font-size: 0.9rem;
+            padding: 2rem 0;
+            color: #64748b;
+            font-size: 0.875rem;
         }
 
-        /* Color Classes */
-        .occupied { background: #ff4757; color: white; }
-        .available { background: #2ed573; color: white; }
-        .signin-btn { background: #2ecc71; }
-        .history-btn { background: #f1c40f; }
-        .assign-btn { background: #3498db; }
-        .remove-btn { background: #e74c3c; }
-        .reset-btn { background: #9b59b6; }
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 1rem;
+                border-radius: 8px;
+            }
+
+            .parking-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -168,21 +293,23 @@
     <div id="authModal" class="modal">
         <div class="modal-content">
             <div id="loginForm" class="auth-form">
-                <h2 style="margin: 0 0 15px 0;">Login</h2>
+                <h2 style="margin-bottom: 1.5rem; color: var(--text);">Welcome Back</h2>
                 <input type="text" id="loginUsername" placeholder="Username" class="input-field">
                 <input type="password" id="loginPassword" placeholder="Password" class="input-field">
-                <button class="btn signin-btn" onclick="login()" style="margin-top: 10px;">Login</button>
-                <div class="form-switch">
-                    <p style="margin: 15px 0 0 0;">New user? <a onclick="showRegisterForm()" style="color: #3498db; cursor: pointer;">Register here</a></p>
+                <button class="btn assign-btn" onclick="login()" style="margin-top: 1rem; width: 100%;">Login</button>
+                <div style="margin-top: 1rem; text-align: center;">
+                    <span style="color: #64748b;">New user? </span>
+                    <a onclick="showRegisterForm()" style="color: var(--primary); cursor: pointer;">Create Account</a>
                 </div>
             </div>
             <div id="registerForm" style="display: none;">
-                <h2 style="margin: 0 0 15px 0;">Register</h2>
+                <h2 style="margin-bottom: 1.5rem; color: var(--text);">Create Account</h2>
                 <input type="text" id="registerUsername" placeholder="Username" class="input-field">
                 <input type="password" id="registerPassword" placeholder="Password" class="input-field">
-                <button class="btn signin-btn" onclick="register()" style="margin-top: 10px;">Register</button>
-                <div class="form-switch">
-                    <p style="margin: 15px 0 0 0;">Have an account? <a onclick="showLoginForm()" style="color: #3498db; cursor: pointer;">Login here</a></p>
+                <button class="btn assign-btn" onclick="register()" style="margin-top: 1rem; width: 100%;">Register</button>
+                <div style="margin-top: 1rem; text-align: center;">
+                    <span style="color: #64748b;">Already have an account? </span>
+                    <a onclick="showLoginForm()" style="color: var(--primary); cursor: pointer;">Login here</a>
                 </div>
             </div>
         </div>
@@ -190,10 +317,10 @@
 
     <div class="container">
         <header class="header">
-            <h1 class="header-title">🚗 Smart Parking</h1>
+            <h1 class="header-title">🚗 Smart Parking Pro</h1>
             <div class="auth-buttons">
-                <button id="historyBtn" class="auth-btn history-btn" onclick="showHistory()">History</button>
-                <button id="authBtn" class="auth-btn signin-btn" onclick="handleAuth()">Sign In</button>
+                <button id="historyBtn" class="auth-btn" onclick="showHistory()">History</button>
+                <button id="authBtn" class="auth-btn" onclick="handleAuth()">Sign In</button>
             </div>
         </header>
 
@@ -205,23 +332,24 @@
                 <option value="car">Car (PKR 50)</option>
                 <option value="truck">Truck (PKR 100)</option>
             </select>
-            <button class="btn assign-btn" onclick="assignParking()">Assign Parking</button>
-            <button class="btn remove-btn" onclick="removeVehicle()">Remove Vehicle</button>
-            <button class="btn reset-btn" onclick="resetSystem()">Reset All</button>
+            <div class="btn-group">
+                <button class="btn assign-btn" onclick="assignParking()">Assign Parking</button>
+                <button class="btn remove-btn" onclick="removeVehicle()">Remove Vehicle</button>
+                <button class="btn reset-btn" onclick="resetSystem()">Reset All</button>
+            </div>
         </div>
 
         <div class="earnings">
-            <h3 style="margin: 0;">Total Earnings: PKR <span id="totalEarnings">0</span></h3>
+            <h3>Total Earnings: PKR <span id="totalEarnings">0</span></h3>
         </div>
 
         <div class="parking-grid" id="parkingGrid"></div>
         
         <div class="footer">
-            Made with ❤️ by Sohaib
+            Made with ❤️ by Sohaib | Smart Parking Solutions
         </div>
     </div>
-
-    <script>
+<script>
         // Parking System Data
         let parkingData = JSON.parse(localStorage.getItem('parkingData')) || [];
         let totalEarnings = JSON.parse(localStorage.getItem('totalEarnings')) || 0;
@@ -472,5 +600,6 @@
             updateAuthUI();
         };
     </script>
+    
 </body>
 </html>
